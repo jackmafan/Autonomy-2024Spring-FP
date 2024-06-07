@@ -28,6 +28,18 @@ def plot_learning_curve(logfile_dir, result_lists):
         plt.savefig(os.path.join(logfile_dir,plot_name+'.png'))
         plt.clf( )
 
+def read_image(img_path:str):
+    # read image
+    if img_path.endswith('road10.png'):
+        image = cv2.imread(img_path)
+        crop_img = image[300:300+1000, 0:0+3000]
+    else:
+        image = cv2.imread(img_path)
+        h,w,_ = image.shape
+        crop_img = image[h//2:h, :]
+        
+    return crop_img
+
 ### For Deploying, After detecting ROI, main will call this function for classifier
 def preprocess1image(img:np.ndarray,objects:list[tuple[int]])->torch.Tensor:
     """img is gray image, crop ROI one by one according to (x,y,w,h) in objects"""
@@ -102,3 +114,5 @@ def visualize(img:np.ndarray,signs:list[tuple[int]],roads)->np.ndarray:
 
         # Add the text on the image
         cv2.putText(img, text, (text_x, text_y), font, font_scale, text_color, font_thickness)
+    
+    return  img

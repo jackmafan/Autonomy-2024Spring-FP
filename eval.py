@@ -12,7 +12,8 @@ import torch.nn as nn
 from dataset import build_evalModel_loader
 from model import TSC_M,TSC_MA
 import cv2
-from util import preprocess1image,predict2labels,visualize
+from util import preprocess1image,predict2labels,visualize,read_image
+from lanedetection import*
 
 def evalModel(model:nn.Module,dataset_dir:str = 'GTSRB',test_all:bool=False,cropROI:bool=True):
     device = torch.device('cpu')
@@ -65,17 +66,25 @@ def testTSR(img_paths:list[str]):
             objects.extend(detector.detectMultiScale(img, scaleFactor=1.1, minNeighbors=5, minSize=(32, 32)))
         
         #Traffic sign recognition
-        print(objects)
         #raise ValueError('stop')
-        data = preprocess1image(img,objects).to(device)
-        predict = model(data)
-        traffic_signs = predict2labels(objects,predict)
-        
-        #Lane Detection
-        roads = None
-        
-        visualize(rgbimg,traffic_signs,roads)
-        
+        if len(objects) > 0:
+            data = preprocess1image(img,objects).to(device)
+            predict = model(data)
+            traffic_signs = predict2labels(objects,predict)
+            result = visualize(rgbimg,traffic_signs)
+        else:
+            result = rgbimg
+            
+        output_path = img_path.rstrip('.jpg') + '_result.jpg'
+        cv2.imwrite(output_path,result)
+
+def testLD(img_paths:list[str]):
+    for img_path in img_paths:
+        image = read_image(img_path) 
+        binary_image = color_based_segmentation(image)   
+        lines = detect_lane_lines(binary_image)  
+        result_image = draw_lane_lines(image, lines)   
+        cv2.imwrite('test2.jpg',result_image)
     
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
@@ -83,13 +92,20 @@ if __name__=='__main__':
     parser.add_argument('--dataset_dir', help='dataset directory', type=str, default='GTSRB')
     parser.add_argument('--drop_out_prob',help='hyper parameter for dropout layers',type=float,default=0.1)
     parser.add_argument('--bs',help='batch size',type=int,default=50)
-    parser.add_argument('--attention',action='store_true',default=False)
     parser.add_argument('--noROI',action='store_true',default=False)
     parser.add_argument('--testAll',action='store_true',default=False)
+    
+    parser.add_argument('--testModel',action='store_true',default=False)
+    parser.add_argument('--testTSR',action='store_true',default=False)
+    parser.add_argument('--testLD',action='store_true',default=False)
     args = parser.parse_args()
  
-    model = TSC_MA(args.drop_out_prob) if args.attention else TSC_M(args.drop_out_prob)
-    model.load_state_dict(torch.load(args.model_path, map_location=torch.device('cpu')))
-
-    testTSR(['test.png'])
-    #evalModel(model,args.dataset_dir,args.testAll,not args.noROI,args.attention)
+    model =  TSC_M(args.drop_out_prob)
+    model.load_state_dict(torch.load(args.model_path, map_location=torch.device('cpu'))
+                          )
+    if args.testTSR:
+        testTSR([os.path.join('assets',f'test{i}.jpg') for i in range(2)])
+    if args.testLD:
+        testLD([os.path.join('assets','road10.jpg')])
+    if args.testModel:
+        evalModel(model,args.dataset_dir,args.testAll,not args.noROI)

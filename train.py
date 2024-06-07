@@ -127,21 +127,18 @@ if __name__=='__main__':
     parser.add_argument('--optimizer',help='type of optimizer',type=str,default='Adam')
     parser.add_argument('--bs',help='batch size',type=int,default=50)
     parser.add_argument('--epochs',help='training epochs',type=int,default=70)
-    parser.add_argument('--attention',action='store_true',default=False)
     parser.add_argument('--noROI',action='store_true',default=False)
     args = parser.parse_args()
     
-    if args.attention:
-        exp_name =  'TSC_MA'+ datetime.now().strftime('_%Y_%m_%d_%H_%M_%S')
-    else:
-        exp_name =  'TSC_M'+ datetime.now().strftime('_%Y_%m_%d_%H_%M_%S')
+
+    exp_name =  'TSC_M'+ datetime.now().strftime('_%Y_%m_%d_%H_%M_%S')
     exp_dir = os.path.join('./experiment', exp_name)
     os.makedirs(exp_dir, exist_ok=True)
     
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
-    model = TSC_MA(args.drop_out_prob) if args.attention else TSC_M(args.drop_out_prob)
+    model = TSC_M(args.drop_out_prob)
     
     train(data_set_dir=args.dataset_dir,
           exp_dir = exp_dir,
