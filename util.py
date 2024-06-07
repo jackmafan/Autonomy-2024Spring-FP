@@ -30,7 +30,7 @@ def plot_learning_curve(logfile_dir, result_lists):
 
 def read_image(img_path:str):
     # read image
-    if img_path.endswith('road10.png'):
+    if img_path.endswith('road10.jpg'):
         image = cv2.imread(img_path)
         crop_img = image[300:300+1000, 0:0+3000]
     else:
@@ -72,13 +72,13 @@ def predict2labels(objects:list[tuple[int]],predict:torch.Tensor,threshold = 0.7
     
     return labels
 
-def visualize(img:np.ndarray,signs:list[tuple[int]],roads)->np.ndarray:
+def visualize(rgbimg:np.ndarray,signs:list[tuple[int]])->np.ndarray:
     #Class label 
     forbids = [0,1,2,3,4,5,7,8,9,10,15,16] + [6,17,32,41,42] #red
     warnings = [11,18,19,20,21,22,23,24,25,26,27,28,29,30,31]
     suggests = [33,34,35,36,37,38,39,40]
     others = [12,13,14]
-    color = {'forbids':(0,0,255),'warnings':(0,255,255),'suggests':(255,0,0),'others':(0,0,0 ) } #red, yellow,blue,black
+    colors = {'forbids':(0,0,255),'warnings':(0,255,255),'suggests':(255,0,0),'others':(0,0,0 ) } #red, yellow,blue,black
     #draw signs and roads on the given BGR image
     class_name = ['speed lim 20','speed lim 30','speed lim 50','speed lim 60','speed lim 70','speed lim 80','no 80','speed lim 100','speed lim 120','no pass',
                   'no cross','baby','renovation','give way','stop','no car','no truck','no entry','danger','left',
@@ -90,9 +90,18 @@ def visualize(img:np.ndarray,signs:list[tuple[int]],roads)->np.ndarray:
     font = cv2.FONT_HERSHEY_SIMPLEX
     font_scale = 1
     font_thickness = 2
-    
+    img = np.array(rgbimg)
     for (x,y,w,h,class_id) in signs:
         
+        if class_id in forbids:
+            color = colors['forbids']
+        elif class_id in warnings:
+            color = colors['warnings']
+        elif class_id in suggests:
+            color = colors['suggests']
+        else:
+            color = colors['others']
+            
         cv2.rectangle(img, (x, y), (x+w, y+h), color, thickness)
 
         # Define the text to add

@@ -34,18 +34,19 @@ def evalModel(model:nn.Module,dataset_dir:str = 'GTSRB',test_all:bool=False,crop
         eval_acc = eval_acc+torch.sum(torch.argmax(pred, dim=1) == labels)
         eval_loss = eval_loss+loss.item()
 
-    print(f'total loss is {eval_loss}, dataset len is {len(eval_loader)}')
-    print(f'# of accurate data  {eval_acc}, dataset len is {len(eval_loader.dataset)}')
+    #print(f'total loss is {eval_loss}, dataset len is {len(eval_loader)}')
+    #print(f'# of accurate data  {eval_acc}, dataset len is {len(eval_loader.dataset)}')
+    print(f'Accuracy: {eval_acc/len(eval_loader.dataset)*100}%  , Average loss: {eval_loss/len(eval_loader)}')
     
 def testTSR(img_paths:list[str]):
     """Test images """
     forbids = cv2.CascadeClassifier()
     warnings = cv2.CascadeClassifier()
-    #suggests = cv2.CascadeClassifier()
+    suggests = cv2.CascadeClassifier()
     others = cv2.CascadeClassifier()
     forbids.load(cv2.samples.findFile(os.path.join('checkpoints','forbids.xml')))
     warnings.load(cv2.samples.findFile(os.path.join('checkpoints','warnings.xml')))
-    #suggests.load(cv2.samples.findFile(os.path.join('checkpoints','suggests.xml')))
+    suggests.load(cv2.samples.findFile(os.path.join('checkpoints','suggests.xml')))
     others.load(cv2.samples.findFile(os.path.join('checkpoints','others.xml')))
     
     detectors = [forbids,warnings,others]#,suggests]
@@ -63,28 +64,36 @@ def testTSR(img_paths:list[str]):
         img = cv2.cvtColor(rgbimg, cv2.COLOR_BGR2GRAY)
         objects = []
         for detector in detectors:
-            objects.extend(detector.detectMultiScale(img, scaleFactor=1.1, minNeighbors=5, minSize=(32, 32)))
+            objects.extend(detector.detectMultiScale(img, scaleFactor=1.1, minNeighbors=5, minSize=(24, 24)))
         
         #Traffic sign recognition
         #raise ValueError('stop')
         if len(objects) > 0:
+            print(f"exist traffics sign in {img_path}")
             data = preprocess1image(img,objects).to(device)
             predict = model(data)
             traffic_signs = predict2labels(objects,predict)
             result = visualize(rgbimg,traffic_signs)
         else:
+            print(f"no traffics sign in {img_path}")
             result = rgbimg
             
-        output_path = img_path.rstrip('.jpg') + '_result.jpg'
-        cv2.imwrite(output_path,result)
+        output_path = os.path.split(img_path)[-1].rstrip('.jpg') + '_result.jpg'
+        cv2.imwrite(os.path.join('demo',output_path),result)
 
 def testLD(img_paths:list[str]):
     for img_path in img_paths:
         image = read_image(img_path) 
-        binary_image = color_based_segmentation(image)   
+        
+        binary_image = color_based_segmentation(image)
+        bin_out_path = os.path.split(img_path)[-1].rstrip('.jpg')+'_bin.jpg'
+        cv2.imwrite(os.path.join('demo',bin_out_path), binary_image)
+        
         lines = detect_lane_lines(binary_image)  
         result_image = draw_lane_lines(image, lines)   
-        cv2.imwrite('test2.jpg',result_image)
+        result_out_path = os.path.split(img_path)[-1].rstrip('.jpg')+'_result.jpg'
+        cv2.imwrite(os.path.join('demo',result_out_path),result_image)
+        print(bin_out_path,result_out_path)
     
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
@@ -104,7 +113,7 @@ if __name__=='__main__':
     model.load_state_dict(torch.load(args.model_path, map_location=torch.device('cpu'))
                           )
     if args.testTSR:
-        testTSR([os.path.join('assets',f'test{i}.jpg') for i in range(2)])
+        testTSR([os.path.join('assets',f'test{i}.jpg') for i in range(3)])
     if args.testLD:
         testLD([os.path.join('assets','road10.jpg')])
     if args.testModel:

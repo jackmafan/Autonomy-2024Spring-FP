@@ -13,7 +13,7 @@ def color_based_segmentation(image):
     img_b_blur_50 = cv2.GaussianBlur(equalize_img, (3, 3), 50)
     # binary thresholding
     _, binary = cv2.threshold(img_b_blur_50, 250, 255, cv2.THRESH_BINARY)
-    cv2.imwrite('test.jpg', binary)
+    #cv2.imwrite('test.jpg', binary)
     return binary
 
 
