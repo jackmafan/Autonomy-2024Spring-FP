@@ -19,6 +19,7 @@ The German Traffic Sign Recognition Benchmark (GTSRB) is a widely used dataset i
   
 ![GTSRB](assets/figures-in-report/Figure1-1.png)
 <div align=left>
+  
 You can download the dataset through https://benchmark.ini.rub.de/ .
   
 After unzip the folder, please put the data under ```GTSRB/``` like the following structures.
@@ -38,6 +39,7 @@ The Cityscapes Dataset focuses on semantic understanding of urban street scenes.
 ![CityScapes](https://www.cityscapes-dataset.com/wordpress/wp-content/uploads/2015/07/muenster00.png)
 
 <div align=left>
+  
 Since the images files in folder```CityScapes/``` are just for generating negative samples, you can any negative samples(at least 2048p X 1024p) without traffic signs in ```CityScapes/```, too. Our code could traverse the entire folder.
 
 ##  Evaluation and Demo
