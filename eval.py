@@ -78,7 +78,7 @@ def testTSR(img_paths:list[str]):
             print(f"no traffics sign in {img_path}")
             result = rgbimg
             
-        output_path = os.path.split(img_path)[-1].rstrip('.jpg') + '_result.jpg'
+        output_path = os.path.split(img_path)[-1].rstrip('.jpg') + '_TSR.jpg'
         cv2.imwrite(os.path.join('demo',output_path),result)
 
 def testLD(img_paths:list[str]):
@@ -91,7 +91,7 @@ def testLD(img_paths:list[str]):
         
         lines = detect_lane_lines(binary_image)  
         result_image = draw_lane_lines(image, lines)   
-        result_out_path = os.path.split(img_path)[-1].rstrip('.jpg')+'_result.jpg'
+        result_out_path = os.path.split(img_path)[-1].rstrip('.jpg')+'_LD.jpg'
         cv2.imwrite(os.path.join('demo',result_out_path),result_image)
         print(bin_out_path,result_out_path)
     
