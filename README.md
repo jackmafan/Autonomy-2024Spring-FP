@@ -58,7 +58,18 @@ if args.testLD:
 ```
 
 Function ```evalModel``` can test only the classifier itself over **GTSRB** dataset. Argument```--noROI``` uses the entire image rather than image, while ```--testAll``` runs evaluation over entire dataset rather than only validation set. You should name your model weight as ```model_best.pt``` under folder```checkpoints/```.
-![DemoLD](assets/road10.jpg) ![DemoLD](demo/road10_bin.jpg) ![DemoLD](demo/road10_LD.jpg)
-![DemoTSR](assets/test0.jpg) ![DemoLD](demo/test0_TSR.jpg)
-![DemoTSR](assets/test1.jpg) ![DemoLD](demo/test1_TSR.jpg)
-![DemoTSR](assets/test2.jpg) ![DemoLD](demo/test2_TSR.jpg)
+<img src="assets/road10.jpg" width="250px" height='125px' />
+<img src="demo/road10_bin.jpg" width="250px" height='125px' />
+<img src="demo/road10_LD.jpg" width="250px" height='125px' />
+
+---
+
+<img src="assets/test0.jpg" width="150px" height='150px' />
+<img src="demo/test0_TSR.jpg" width="150px" height='150px' />
+<img src="assets/test2.jpg" width="150px" height='150px' />
+<img src="demo/test2_TSR.jpg" width="150px" height='150px' />
+
+---
+<img src="assets/test1.jpg" width="225px" height='150px' />
+<img src="demo/test1_TSR.jpg" width="225px" height='150px' />
+
